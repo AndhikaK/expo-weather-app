@@ -51,39 +51,35 @@ export default function MainScreen() {
       const translateX = interpolate(
         value,
         [-1, 0, 1],
-        [-PAGE_WIDTH * 1.75, 0, PAGE_WIDTH * 1.75],
+        [-PAGE_WIDTH, 0, PAGE_WIDTH],
         Extrapolation.CLAMP
       );
 
       const scale = interpolate(
         value,
         [-1, 0, 1],
-        [0.4, 1, 0.4],
+        [0.49, 1, 0.49],
         Extrapolation.CLAMP
       );
 
       const perspective = interpolate(
         value,
         [-1, 0, 1],
-        [PAGE_WIDTH * 1, PAGE_WIDTH * 1.5, PAGE_WIDTH * 1],
+        [PAGE_WIDTH * 0.89, PAGE_WIDTH * 1.5, PAGE_WIDTH * 0.89],
         Extrapolation.CLAMP
       );
 
       const rotateY = `${interpolate(
         value,
         [-1, 0, 1],
-        [-135, 0, 135],
+        [-90, 0, 90],
         Extrapolation.CLAMP
       )}deg`;
 
       const transform = {
-        transform: [
-          //
-          { scale },
-          { translateX },
-          { perspective },
-          { rotateY },
-        ],
+        transform: false
+          ? [{ scale }, { translateX }, { perspective }, { rotateY }]
+          : [{ perspective }, { scale }, { translateX }, { rotateY }],
       };
 
       return {
@@ -103,7 +99,7 @@ export default function MainScreen() {
       <Carousel
         loop
         width={width}
-        height={Dimensions.get("screen").height}
+        height={height}
         style={{
           width: width,
           height: height,
@@ -112,6 +108,7 @@ export default function MainScreen() {
         }}
         autoPlay={true}
         data={colors}
+        autoPlayInterval={5000}
         scrollAnimationDuration={1000}
         onSnapToItem={(index) => console.log("current index:", index)}
         customAnimation={animationStyle}
