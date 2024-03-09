@@ -21,7 +21,7 @@ const defaultAnchorPoint = { x: 0.5, y: 0.5 };
 export const withAnchorPoint = (
   transform: TransformsStyle,
   anchorPoint: Point,
-  size: Size
+  size: Size,
 ) => {
   "worklet";
 

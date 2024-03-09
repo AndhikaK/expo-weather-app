@@ -2,7 +2,12 @@ module.exports = {
   root: true,
   extends: ["universe/native"],
   rules: {
-    endOfLine: "auto",
+    "prettier/prettier": [
+      "error",
+      {
+        endOfLine: "auto",
+      },
+    ],
     "import/order": [
       "error",
       {

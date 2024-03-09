@@ -1,7 +1,9 @@
 import React from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Platform, StyleSheet, View } from "react-native";
+
 import Animated, {
   Extrapolation,
+  SharedValue,
   interpolate,
   interpolateColor,
   useAnimatedStyle,
@@ -9,7 +11,6 @@ import Animated, {
 import Carousel, {
   type TCarouselProps,
 } from "react-native-reanimated-carousel";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { withAnchorPoint } from "@/utils/anchor-point";
 
@@ -38,11 +39,6 @@ const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
 
 export default function MainScreen() {
-  const insets = useSafeAreaInsets();
-
-  const PAGE_WIDTH = width;
-  const PAGE_HEIGHT = height;
-
   const animationStyle: TCarouselProps["customAnimation"] = React.useCallback(
     (value: number) => {
       "worklet";
@@ -51,47 +47,44 @@ export default function MainScreen() {
       const translateX = interpolate(
         value,
         [-1, 0, 1],
-        [-PAGE_WIDTH, 0, PAGE_WIDTH],
-        Extrapolation.CLAMP
+        [-width, 0, width],
+        Extrapolation.CLAMP,
       );
 
       const scale = interpolate(
         value,
         [-1, 0, 1],
         [0.49, 1, 0.49],
-        Extrapolation.CLAMP
+        Extrapolation.CLAMP,
       );
 
       const perspective = interpolate(
         value,
         [-1, 0, 1],
-        [PAGE_WIDTH * 0.89, PAGE_WIDTH * 1.5, PAGE_WIDTH * 0.89],
-        Extrapolation.CLAMP
+        [width * 0.89, width * 1.5, width * 0.89],
+        Extrapolation.CLAMP,
       );
 
       const rotateY = `${interpolate(
         value,
         [-1, 0, 1],
         [-90, 0, 90],
-        Extrapolation.CLAMP
+        Extrapolation.CLAMP,
       )}deg`;
 
       const transform = {
-        transform: false
-          ? [{ scale }, { translateX }, { perspective }, { rotateY }]
-          : [{ perspective }, { scale }, { translateX }, { rotateY }],
+        transform:
+          Platform.OS === "ios"
+            ? [{ scale }, { translateX }, { perspective }, { rotateY }]
+            : [{ perspective }, { scale }, { translateX }, { rotateY }],
       };
 
       return {
-        ...withAnchorPoint(
-          transform,
-          { x: 0.5, y: 0.5 },
-          { width: PAGE_WIDTH, height: PAGE_HEIGHT }
-        ),
+        ...withAnchorPoint(transform, { x: 0.5, y: 0.5 }, { width, height }),
         zIndex,
       };
     },
-    [PAGE_HEIGHT, PAGE_WIDTH]
+    [height, width],
   );
 
   return (
@@ -101,12 +94,12 @@ export default function MainScreen() {
         width={width}
         height={height}
         style={{
-          width: width,
-          height: height,
+          width,
+          height,
           justifyContent: "center",
           alignItems: "center",
         }}
-        autoPlay={true}
+        autoPlay
         data={colors}
         autoPlayInterval={5000}
         scrollAnimationDuration={1000}
@@ -126,14 +119,14 @@ export default function MainScreen() {
 
 interface ItemProps {
   color: string;
-  animationValue: Animated.SharedValue<number>;
+  animationValue: SharedValue<number>;
 }
 const CustomItem: React.FC<ItemProps> = ({ color, animationValue }) => {
   const maskStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
       animationValue.value,
       [-1, 0, 1],
-      ["#000000dd", "transparent", "#000000dd"]
+      ["#000000dd", "transparent", "#000000dd"],
     );
 
     return {
@@ -143,8 +136,7 @@ const CustomItem: React.FC<ItemProps> = ({ color, animationValue }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* <SBItem pretty key={index} index={index} style={{ borderRadius: 0 }} /> */}
-      <View style={{ flex: 1, backgroundColor: color }}></View>
+      <View style={{ flex: 1, backgroundColor: color }} />
       <Animated.View
         pointerEvents="none"
         style={[
