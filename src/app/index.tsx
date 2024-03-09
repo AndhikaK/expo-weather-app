@@ -12,6 +12,7 @@ import Carousel, {
   type TCarouselProps,
 } from "react-native-reanimated-carousel";
 
+import { WeatherScreen, WeatherScreenProps } from "@/components/WeatherScreen";
 import { withAnchorPoint } from "@/utils/anchor-point";
 
 const colors = [
@@ -22,7 +23,7 @@ const colors = [
   "#42c6ff",
   //
 ];
-const weathers = [
+const weathers: WeatherScreenProps[] = [
   {
     city: "Sydney",
     temperature: "28",
@@ -32,6 +33,29 @@ const weathers = [
     wind: "1km/h",
     humidity: "29",
     visibility: "0.8km",
+    color: "#FF64d4",
+  },
+  {
+    city: "Sydney",
+    temperature: "28",
+    weather: "rain",
+    summary:
+      "It's humid because today is raining, please bring your umbrella and coat if you're planning to go outside.",
+    wind: "1km/h",
+    humidity: "29",
+    visibility: "0.8km",
+    color: "#42c6ff",
+  },
+  {
+    city: "Sydney",
+    temperature: "28",
+    weather: "rain",
+    summary:
+      "It's humid because today is raining, please bring your umbrella and coat if you're planning to go outside.",
+    wind: "1km/h",
+    humidity: "29",
+    visibility: "0.8km",
+    color: "#FFe142",
   },
 ];
 
@@ -48,28 +72,28 @@ export default function MainScreen() {
         value,
         [-1, 0, 1],
         [-width, 0, width],
-        Extrapolation.CLAMP,
+        Extrapolation.CLAMP
       );
 
       const scale = interpolate(
         value,
         [-1, 0, 1],
         [0.49, 1, 0.49],
-        Extrapolation.CLAMP,
+        Extrapolation.CLAMP
       );
 
       const perspective = interpolate(
         value,
         [-1, 0, 1],
         [width * 0.89, width * 1.5, width * 0.89],
-        Extrapolation.CLAMP,
+        Extrapolation.CLAMP
       );
 
       const rotateY = `${interpolate(
         value,
         [-1, 0, 1],
         [-90, 0, 90],
-        Extrapolation.CLAMP,
+        Extrapolation.CLAMP
       )}deg`;
 
       const transform = {
@@ -84,7 +108,7 @@ export default function MainScreen() {
         zIndex,
       };
     },
-    [height, width],
+    [height, width]
   );
 
   return (
@@ -100,33 +124,28 @@ export default function MainScreen() {
           alignItems: "center",
         }}
         autoPlay
-        data={colors}
+        data={weathers}
         autoPlayInterval={5000}
         scrollAnimationDuration={1000}
         onSnapToItem={(index) => console.log("current index:", index)}
         customAnimation={animationStyle}
         renderItem={({ index, item, animationValue }) => (
-          <CustomItem
-            key={index}
-            color={item}
-            animationValue={animationValue}
-          />
+          <CustomItem key={index} animationValue={animationValue} {...item} />
         )}
       />
     </View>
   );
 }
 
-interface ItemProps {
-  color: string;
+type ItemProps = {
   animationValue: SharedValue<number>;
-}
-const CustomItem: React.FC<ItemProps> = ({ color, animationValue }) => {
+} & WeatherScreenProps;
+const CustomItem: React.FC<ItemProps> = ({ animationValue, ...rest }) => {
   const maskStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
       animationValue.value,
       [-1, 0, 1],
-      ["#000000dd", "transparent", "#000000dd"],
+      ["#000000dd", "transparent", "#000000dd"]
     );
 
     return {
@@ -136,7 +155,7 @@ const CustomItem: React.FC<ItemProps> = ({ color, animationValue }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 1, backgroundColor: color }} />
+      <WeatherScreen {...rest} />
       <Animated.View
         pointerEvents="none"
         style={[
