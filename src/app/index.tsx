@@ -7,13 +7,20 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import Carousel, {
-  type TAnimationStyle,
+  type TCarouselProps,
 } from "react-native-reanimated-carousel";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { withAnchorPoint } from "@/utils/anchor-point";
 
-const colors = ["#FF64d4", "#FFe142", "#42c6ff"];
+const colors = [
+  "#FF64d4",
+  "#FFe142",
+  "#42c6ff",
+  "#FFe142",
+  "#42c6ff",
+  //
+];
 const weathers = [
   {
     city: "Sydney",
@@ -36,7 +43,7 @@ export default function MainScreen() {
   const PAGE_WIDTH = width;
   const PAGE_HEIGHT = height;
 
-  const animationStyle: TAnimationStyle = React.useCallback(
+  const animationStyle: TCarouselProps["customAnimation"] = React.useCallback(
     (value: number) => {
       "worklet";
       const zIndex = interpolate(value, [-1, 0, 1], [-1000, 0, -1000]);
@@ -44,21 +51,21 @@ export default function MainScreen() {
       const translateX = interpolate(
         value,
         [-1, 0, 1],
-        [-PAGE_WIDTH * 1.5, 0, PAGE_WIDTH * 1.5],
+        [-PAGE_WIDTH * 1.75, 0, PAGE_WIDTH * 1.75],
         Extrapolation.CLAMP
       );
 
       const scale = interpolate(
         value,
         [-1, 0, 1],
-        [0.49, 1, 0.49],
+        [0.4, 1, 0.4],
         Extrapolation.CLAMP
       );
 
       const perspective = interpolate(
         value,
         [-1, 0, 1],
-        [PAGE_WIDTH * 0.89, PAGE_WIDTH * 1.5, PAGE_WIDTH * 0.89],
+        [PAGE_WIDTH * 1, PAGE_WIDTH * 1.5, PAGE_WIDTH * 1],
         Extrapolation.CLAMP
       );
 
@@ -70,7 +77,13 @@ export default function MainScreen() {
       )}deg`;
 
       const transform = {
-        transform: [{ scale }, { translateX }, { perspective }, { rotateY }],
+        transform: [
+          //
+          { scale },
+          { translateX },
+          { perspective },
+          { rotateY },
+        ],
       };
 
       return {
