@@ -12,6 +12,7 @@ type TypographyProps = {
   fontSize?: number;
   color?: ColorValue;
   align?: TextStyle["textAlign"];
+  fontWeight?: TextStyle["fontWeight"];
 } & TextProps;
 
 export const Typography: React.FunctionComponent<TypographyProps> = (props) => {
@@ -26,13 +27,19 @@ export const Typography: React.FunctionComponent<TypographyProps> = (props) => {
 };
 
 const getStyle = (props: TypographyProps) => {
-  const { fontSize = 16, color = "black", align = "left" } = props;
+  const {
+    fontSize = 16,
+    color = "black",
+    align = "left",
+    fontWeight = "normal",
+  } = props;
 
   const text: TextStyle = {
     fontSize,
     fontFamily: "SFCompact",
     color,
     textAlign: align,
+    fontWeight,
   };
 
   return StyleSheet.create({
