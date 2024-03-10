@@ -1,120 +1,27 @@
 import React, { useState } from "react";
-import { Dimensions, Platform, StyleSheet, View } from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 
 import Animated, {
-  Extrapolation,
   SharedValue,
-  interpolate,
   interpolateColor,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import Carousel, {
-  type TCarouselProps,
-} from "react-native-reanimated-carousel";
+import Carousel from "react-native-reanimated-carousel";
 
 import { WeatherScreen, WeatherScreenProps } from "@/components/WeatherScreen";
-import { withAnchorPoint } from "@/utils/anchor-point";
-
-const colors = [
-  "#FF64d4",
-  "#FFe142",
-  "#42c6ff",
-  "#FFe142",
-  "#42c6ff",
-  //
-];
-const weathers: Omit<
-  WeatherScreenProps,
-  "index" | "snapIndex" | "animationValue"
->[] = [
-  {
-    city: "Sydney",
-    temperature: "28",
-    weather: "rain",
-    summary:
-      "It's humid because today is raining, please bring your umbrella and coat if you're planning to go outside.",
-    wind: "1km/h",
-    humidity: "29",
-    visibility: "0.8km",
-    color: "#FF64d4",
-  },
-  {
-    city: "Sydney",
-    temperature: "28",
-    weather: "rain",
-    summary:
-      "It's humid because today is raining, please bring your umbrella and coat if you're planning to go outside.",
-    wind: "1km/h",
-    humidity: "29",
-    visibility: "0.8km",
-    color: "#42c6ff",
-  },
-  {
-    city: "Sydney",
-    temperature: "28",
-    weather: "rain",
-    summary:
-      "It's humid because today is raining, please bring your umbrella and coat if you're planning to go outside.",
-    wind: "1km/h",
-    humidity: "29",
-    visibility: "0.8km",
-    color: "#FFe142",
-  },
-];
+import { useCarouselBox3d } from "@/features/ui/hooks/useCarouselBox3d";
+import { useWeatherForecast } from "@/features/weather/hooks/useWeatherForecast";
 
 const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
 
 export default function MainScreen() {
-  const animationStyle: TCarouselProps["customAnimation"] = React.useCallback(
-    (value: number) => {
-      "worklet";
-      const zIndex = interpolate(value, [-1, 0, 1], [-1000, 0, -1000]);
-
-      const translateX = interpolate(
-        value,
-        [-1, 0, 1],
-        [-width, 0, width],
-        Extrapolation.CLAMP
-      );
-
-      const scale = interpolate(
-        value,
-        [-1, 0, 1],
-        [0.49, 1, 0.49],
-        Extrapolation.CLAMP
-      );
-
-      const perspective = interpolate(
-        value,
-        [-1, 0, 1],
-        [width * 0.89, width * 1.5, width * 0.89],
-        Extrapolation.CLAMP
-      );
-
-      const rotateY = `${interpolate(
-        value,
-        [-1, 0, 1],
-        [-90, 0, 90],
-        Extrapolation.CLAMP
-      )}deg`;
-
-      const transform = {
-        transform:
-          Platform.OS === "ios"
-            ? [{ scale }, { translateX }, { perspective }, { rotateY }]
-            : [{ perspective }, { scale }, { translateX }, { rotateY }],
-      };
-
-      return {
-        ...withAnchorPoint(transform, { x: 0.5, y: 0.5 }, { width, height }),
-        zIndex,
-      };
-    },
-    [height, width]
-  );
-
   const [snapIndex, setSnapIndex] = useState(0);
+
+  const { animationStyle } = useCarouselBox3d(width, height);
+
+  // queries
+  const { data: weathers } = useWeatherForecast();
 
   return (
     <View style={[styles.container]}>

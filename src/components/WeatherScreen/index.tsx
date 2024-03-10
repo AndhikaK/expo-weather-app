@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { ColorValue, View } from "react-native";
 
 import Animated, {
@@ -6,9 +6,7 @@ import Animated, {
   SharedValue,
   interpolate,
   useAnimatedStyle,
-  useSharedValue,
   withDelay,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -35,6 +33,12 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
   color,
   wind,
   index,
+  city,
+  weather,
+  humidity,
+  summary,
+  visibility,
+  temperature,
   snapIndex,
   animationValue,
 }) => {
@@ -67,7 +71,7 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
         ]}
       >
         <Typography fontSize={27} fontWeight="bold">
-          Sydney
+          {city}
         </Typography>
       </Animated.View>
 
@@ -102,7 +106,7 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
                 align="center"
                 style={{ marginTop: 16 }}
               >
-                Rain
+                {weather}
               </Typography>
             </CustomEnterView>
             <View
@@ -111,17 +115,16 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
                 justifyContent: "center",
               }}
             >
-              <CustomEnterView delay={DELAY_DURATION * 1}>
-                <Typography fontSize={200} fontWeight="bold">
-                  2
-                </Typography>
-              </CustomEnterView>
-              <CustomEnterView delay={DELAY_DURATION * 1.5}>
-                <Typography fontSize={200} fontWeight="bold">
-                  7
-                </Typography>
-              </CustomEnterView>
-              <DegreeComponent delay={DELAY_DURATION * 3} />
+              {temperature?.split("").map((temp, i) => (
+                <CustomEnterView key={i} delay={DELAY_DURATION * i + 1}>
+                  <Typography fontSize={200} fontWeight="bold">
+                    {temp}
+                  </Typography>
+                </CustomEnterView>
+              ))}
+              <DegreeComponent
+                delay={DELAY_DURATION * temperature.split("").length + 1}
+              />
             </View>
 
             <View style={{ gap: 4 }}>
@@ -129,11 +132,7 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
                 <Typography fontSize={20}>Daily Summary</Typography>
               </CustomEnterView>
               <CustomEnterView delay={DELAY_DURATION * 2.5}>
-                <Typography fontSize={14}>
-                  Now it's seems that +25°, in fact +28°.{`\n`}It's humid now
-                  because of the heavy rain. Today, the temeperature is felt in
-                  the range from +22° to +28°.
-                </Typography>
+                <Typography fontSize={14}>{summary}</Typography>
               </CustomEnterView>
             </View>
 
@@ -150,20 +149,20 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
               >
                 <WeatherInfoItem
                   color={color}
-                  value={wind}
+                  value={wind + "km/h"}
                   label="Wind"
                   delay={DELAY_DURATION * 3.5}
                 />
                 <WeatherInfoItem
                   color={color}
-                  value={wind}
-                  label="Wind"
+                  value={humidity + "%"}
+                  label="Humidity"
                   delay={DELAY_DURATION * 4}
                 />
                 <WeatherInfoItem
                   color={color}
-                  value={wind}
-                  label="Wind"
+                  value={visibility + "km"}
+                  label="Visibility"
                   delay={DELAY_DURATION * 4.5}
                 />
               </View>
