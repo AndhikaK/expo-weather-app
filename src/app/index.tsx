@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dimensions, Platform, StyleSheet, View } from "react-native";
 
 import Animated, {
@@ -23,7 +23,7 @@ const colors = [
   "#42c6ff",
   //
 ];
-const weathers: WeatherScreenProps[] = [
+const weathers: Omit<WeatherScreenProps, "index" | "snapIndex">[] = [
   {
     city: "Sydney",
     temperature: "28",
@@ -111,6 +111,8 @@ export default function MainScreen() {
     [height, width]
   );
 
+  const [snapIndex, setSnapIndex] = useState(0);
+
   return (
     <View style={[styles.container]}>
       <Carousel
@@ -127,10 +129,16 @@ export default function MainScreen() {
         data={weathers}
         autoPlayInterval={5000}
         scrollAnimationDuration={1000}
-        onSnapToItem={(index) => console.log("current index:", index)}
+        onSnapToItem={(index) => setSnapIndex(index)}
         customAnimation={animationStyle}
         renderItem={({ index, item, animationValue }) => (
-          <CustomItem key={index} animationValue={animationValue} {...item} />
+          <CustomItem
+            key={index}
+            animationValue={animationValue}
+            snapIndex={snapIndex}
+            index={index}
+            {...item}
+          />
         )}
       />
     </View>
@@ -139,8 +147,15 @@ export default function MainScreen() {
 
 type ItemProps = {
   animationValue: SharedValue<number>;
+  snapIndex: number;
+  index: number;
 } & WeatherScreenProps;
-const CustomItem: React.FC<ItemProps> = ({ animationValue, ...rest }) => {
+const CustomItem: React.FC<ItemProps> = ({
+  snapIndex,
+  animationValue,
+  index,
+  ...rest
+}) => {
   const maskStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
       animationValue.value,
@@ -155,7 +170,7 @@ const CustomItem: React.FC<ItemProps> = ({ animationValue, ...rest }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <WeatherScreen {...rest} />
+      <WeatherScreen index={index} snapIndex={snapIndex} {...rest} />
       <Animated.View
         pointerEvents="none"
         style={[
