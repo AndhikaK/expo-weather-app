@@ -23,7 +23,10 @@ const colors = [
   "#42c6ff",
   //
 ];
-const weathers: Omit<WeatherScreenProps, "index" | "snapIndex">[] = [
+const weathers: Omit<
+  WeatherScreenProps,
+  "index" | "snapIndex" | "animationValue"
+>[] = [
   {
     city: "Sydney",
     temperature: "28",
@@ -170,7 +173,12 @@ const CustomItem: React.FC<ItemProps> = ({
 
   return (
     <View style={{ flex: 1 }}>
-      <WeatherScreen index={index} snapIndex={snapIndex} {...rest} />
+      <WeatherScreen
+        animationValue={animationValue}
+        index={index}
+        snapIndex={snapIndex}
+        {...rest}
+      />
       <Animated.View
         pointerEvents="none"
         style={[

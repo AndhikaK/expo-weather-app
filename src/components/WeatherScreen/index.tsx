@@ -3,6 +3,9 @@ import { ColorValue, View } from "react-native";
 
 import Animated, {
   EntryExitAnimationFunction,
+  SharedValue,
+  interpolate,
+  useAnimatedStyle,
   useSharedValue,
   withDelay,
   withSpring,
@@ -23,6 +26,7 @@ export type WeatherScreenProps = {
   color: ColorValue;
   index: number;
   snapIndex: number;
+  animationValue: SharedValue<number>;
 };
 
 const DELAY_DURATION = 200;
@@ -32,61 +36,64 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
   wind,
   index,
   snapIndex,
+  animationValue,
 }) => {
   const insets = useSafeAreaInsets();
 
-  const anim1Translate = useSharedValue(20);
-  const anim1Opacity = useSharedValue(0);
+  const isScreenActive = index === snapIndex;
 
-  useEffect(() => {
-    if (index === snapIndex) {
-      // start animation
-      anim1Translate.value = withTiming(0, { duration: 300 });
-      anim1Opacity.value = withTiming(1, { duration: 400 });
-    } else {
-      anim1Translate.value = 20;
-      anim1Opacity.value = 0;
-    }
-  }, [snapIndex]);
+  const cityOpacity = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      animationValue.value,
+      [-0.4, 0, 0.4],
+      [0, 1, 0]
+    );
+
+    return {
+      opacity,
+    };
+  }, [animationValue]);
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: color }}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          paddingVertical: 16,
-        }}
+      <Animated.View
+        style={[
+          {
+            flexDirection: "row",
+            justifyContent: "center",
+            paddingVertical: 16,
+          },
+          cityOpacity,
+        ]}
       >
         <Typography fontSize={27} fontWeight="bold">
           Sydney
         </Typography>
-      </View>
+      </Animated.View>
 
       <View style={{ paddingHorizontal: 36 }}>
         <View style={{ alignItems: "center", gap: 16, marginTop: 8 }}>
-          <View
-            style={{
-              backgroundColor: "black",
-              paddingHorizontal: 16,
-              paddingVertical: 4,
-              borderRadius: 99,
-            }}
-          >
-            <Animated.View
-              style={{
-                transform: [{ translateY: anim1Translate }],
-                opacity: anim1Opacity,
-              }}
-            >
-              <Typography fontSize={15} fontWeight="bold" color={color}>
-                Friay, 20 January
-              </Typography>
-            </Animated.View>
-          </View>
+          {isScreenActive && (
+            <CustomEnterView delay={0} initialValues={{ translateY: 0 }}>
+              <Animated.View
+                style={{
+                  backgroundColor: "black",
+                  paddingHorizontal: 16,
+                  paddingVertical: 4,
+                  borderRadius: 99,
+                }}
+              >
+                <CustomEnterView delay={0}>
+                  <Typography fontSize={15} fontWeight="bold" color={color}>
+                    Friay, 20 January
+                  </Typography>
+                </CustomEnterView>
+              </Animated.View>
+            </CustomEnterView>
+          )}
         </View>
 
-        {index === snapIndex && (
+        {isScreenActive && (
           <>
             <CustomEnterView delay={0} initialValues={{ translateY: 10 }}>
               <Typography
@@ -114,6 +121,7 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
                   7
                 </Typography>
               </CustomEnterView>
+              <DegreeComponent delay={DELAY_DURATION * 3} />
             </View>
 
             <View style={{ gap: 4 }}>
@@ -271,9 +279,7 @@ type CustomEnterViewProps = {
 const CustomEnterView: React.FunctionComponent<CustomEnterViewProps> = ({
   delay,
   children,
-  initialValues = {
-    translateY: 40,
-  },
+  initialValues,
 }) => {
   const enterAnimation: EntryExitAnimationFunction = () => {
     "worklet";
@@ -285,11 +291,43 @@ const CustomEnterView: React.FunctionComponent<CustomEnterViewProps> = ({
     };
     const initialValuesProps = {
       opacity: 0,
-      transform: [{ translateY: initialValues.translateY }],
+      transform: [{ translateY: initialValues?.translateY ?? 40 }],
     };
 
     return { animations, initialValues: initialValuesProps };
   };
 
   return <Animated.View entering={enterAnimation}>{children}</Animated.View>;
+};
+
+const DegreeComponent = ({ delay }: { delay: number }) => {
+  const enterAnimation: EntryExitAnimationFunction = () => {
+    "worklet";
+    const animations = {
+      opacity: withDelay(delay, withTiming(1, { duration: 600 })),
+      transform: [
+        { translateX: withDelay(delay, withTiming(0, { duration: 600 })) },
+      ],
+    };
+    const initialValuesProps = {
+      opacity: 0,
+      transform: [{ translateX: -50 }],
+    };
+
+    return { animations, initialValues: initialValuesProps };
+  };
+
+  return (
+    <Animated.View
+      entering={enterAnimation}
+      style={{
+        width: 40,
+        height: 40,
+        borderWidth: 10,
+        borderRadius: 1000,
+        marginLeft: 8,
+        marginTop: 50,
+      }}
+    />
+  );
 };
