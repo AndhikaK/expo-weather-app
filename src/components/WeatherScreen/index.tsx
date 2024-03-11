@@ -1,6 +1,7 @@
 import React from "react";
 import { ColorValue, Image, View } from "react-native";
 
+import LottieView from "lottie-react-native";
 import Animated, {
   EntryExitAnimationFunction,
   SharedValue,
@@ -21,7 +22,7 @@ export type WeatherScreenProps = {
   wind: string;
   humidity: string;
   visibility: string;
-  color: ColorValue;
+  color: string;
   index: number;
   snapIndex: number;
   animationValue: SharedValue<number>;
@@ -33,6 +34,14 @@ export type WeatherScreenProps = {
 };
 
 const DELAY_DURATION = 200;
+const windLayerLottie = [...new Array(42).keys()];
+const eyeLayerLottie = [...new Array(4).keys()];
+const today = new Intl.DateTimeFormat("en-GB", {
+  month: "long",
+  day: "numeric",
+  weekday: "long",
+  year: "numeric",
+}).format(new Date());
 
 export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
   color,
@@ -95,7 +104,7 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
               >
                 <CustomEnterView delay={0}>
                   <Typography fontSize={15} fontWeight="bold" color={color}>
-                    Friay, 20 January
+                    {today}
                   </Typography>
                 </CustomEnterView>
               </Animated.View>
@@ -158,18 +167,54 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
                   value={wind + "km/h"}
                   label="Wind"
                   delay={DELAY_DURATION * 3.5}
+                  lottie={
+                    <LottieView
+                      autoPlay
+                      loop
+                      colorFilters={windLayerLottie.map((_, i) => ({
+                        keypath: `Shape Layer ${i + 1}`,
+                        color,
+                      }))}
+                      style={{ height: 40, width: 40 }}
+                      source={require("@/assets/lottie/wind.json")}
+                    />
+                  }
                 />
                 <WeatherInfoItem
                   color={color}
                   value={humidity + "%"}
                   label="Humidity"
                   delay={DELAY_DURATION * 4}
+                  lottie={
+                    <LottieView
+                      autoPlay
+                      loop
+                      colorFilters={[
+                        { keypath: "Layer 1 Outlines", color },
+                        { keypath: "Shape Layer 1", color },
+                      ]}
+                      style={{ height: 40, width: 40 }}
+                      source={require("@/assets/lottie/droplet.json")}
+                    />
+                  }
                 />
                 <WeatherInfoItem
                   color={color}
                   value={visibility + "km"}
                   label="Visibility"
                   delay={DELAY_DURATION * 4.5}
+                  lottie={
+                    <LottieView
+                      autoPlay
+                      loop
+                      colorFilters={eyeLayerLottie.map((_, i) => ({
+                        keypath: `Shape Layer ${i + 1}`,
+                        color,
+                      }))}
+                      style={{ height: 40, width: 40 }}
+                      source={require("@/assets/lottie/eye-2.json")}
+                    />
+                  }
                 />
               </View>
             </CustomEnterView>
@@ -207,18 +252,20 @@ type WheatherInfoItemProps = {
   label: string;
   value: string;
   delay: number;
+  lottie: React.ReactNode;
 };
 const WeatherInfoItem: React.FunctionComponent<WheatherInfoItemProps> = ({
   color,
   label,
   value,
   delay,
+  lottie,
 }) => {
   return (
-    <CustomEnterView delay={delay}>
-      <View style={{ alignItems: "center" }}>
-        <View style={{ height: 40 }} />
+    <View style={{ alignItems: "center", gap: 12 }}>
+      <CustomEnterView delay={delay}>{lottie}</CustomEnterView>
 
+      <View style={{ alignItems: "center" }}>
         <Typography color={color} fontSize={16} fontWeight="bold">
           {value}
         </Typography>
@@ -226,7 +273,7 @@ const WeatherInfoItem: React.FunctionComponent<WheatherInfoItemProps> = ({
           {label}
         </Typography>
       </View>
-    </CustomEnterView>
+    </View>
   );
 };
 

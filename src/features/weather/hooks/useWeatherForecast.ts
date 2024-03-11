@@ -4,6 +4,7 @@ import { useQueries } from "@tanstack/react-query";
 
 import { Weather } from "@/api/type";
 import { getWeatherForecast } from "@/api/weather";
+import { WeatherScreenProps } from "@/components/WeatherScreen";
 import { formatDate } from "@/utils/date";
 
 const defaultCity = [
@@ -24,7 +25,7 @@ const defaultCity = [
   },
 ];
 
-const colors = ["#FF64d4", "#FFe142", "#42c6ff"];
+const colors: string[] = ["#FF64d4", "#FFe142", "#42c6ff"];
 
 export const useWeatherForecast = () => {
   const queries = useQueries({
@@ -43,25 +44,34 @@ export const useWeatherForecast = () => {
     () =>
       queries
         .filter((item) => item.data)
-        .map((item, index) => {
-          const forecasts = item.data?.forecast.forecastday?.map((cast) => ({
-            temp: cast.day.avgtemp_c,
-            icon: "https:" + cast.day.condition.icon,
-            date: formatDate(cast.date),
-          }));
+        .map(
+          (
+            item,
+            index
+          ): Omit<
+            WeatherScreenProps,
+            "index" | "snapIndex" | "animationValue"
+          > => {
+            const forecasts =
+              item.data?.forecast.forecastday?.map((cast) => ({
+                temp: cast.day.avgtemp_c.toString() ?? "",
+                icon: "https:" + cast.day.condition.icon ?? "",
+                date: formatDate(cast.date),
+              })) ?? [];
 
-          return {
-            color: colors[index],
-            city: item.data?.location.name,
-            temperature: item.data?.current.temp_c.toString(),
-            weather: item.data?.current.condition.text,
-            wind: item.data?.current.wind_kph,
-            humidity: item.data?.current.humidity,
-            visibility: item.data?.current.vis_km,
-            summary: generateWeatherSummary(item.data?.current),
-            forecasts,
-          };
-        }),
+            return {
+              color: colors[index],
+              city: item.data?.location.name ?? "",
+              temperature: item.data?.current.temp_c.toString() ?? "",
+              weather: item.data?.current.condition.text ?? "",
+              wind: item.data?.current.wind_kph.toString() ?? "",
+              humidity: item.data?.current.humidity.toString() ?? "",
+              visibility: item.data?.current.vis_km.toString() ?? "",
+              summary: generateWeatherSummary(item.data?.current),
+              forecasts,
+            };
+          }
+        ),
     [queries]
   );
 
