@@ -1,5 +1,5 @@
 import React from "react";
-import { ColorValue, View } from "react-native";
+import { ColorValue, Image, View } from "react-native";
 
 import Animated, {
   EntryExitAnimationFunction,
@@ -25,6 +25,11 @@ export type WeatherScreenProps = {
   index: number;
   snapIndex: number;
   animationValue: SharedValue<number>;
+  forecasts: {
+    temp: string;
+    date: string;
+    icon: string;
+  }[];
 };
 
 const DELAY_DURATION = 200;
@@ -41,6 +46,7 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
   temperature,
   snapIndex,
   animationValue,
+  forecasts,
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -177,26 +183,15 @@ export const WeatherScreen: React.FunctionComponent<WeatherScreenProps> = ({
                     justifyContent: "space-between",
                   }}
                 >
-                  <ForecastItem
-                    date="23 Jan"
-                    temp={20}
-                    delay={DELAY_DURATION * 4.5}
-                  />
-                  <ForecastItem
-                    date="23 Jan"
-                    temp={20}
-                    delay={DELAY_DURATION * 5}
-                  />
-                  <ForecastItem
-                    date="23 Jan"
-                    temp={20}
-                    delay={DELAY_DURATION * 5.5}
-                  />
-                  <ForecastItem
-                    date="23 Jan"
-                    temp={20}
-                    delay={DELAY_DURATION * 6}
-                  />
+                  {forecasts.map((item, i) => (
+                    <ForecastItem
+                      key={i}
+                      date={item.date}
+                      temp={item.temp}
+                      icon={item.icon}
+                      delay={DELAY_DURATION * i + 1}
+                    />
+                  ))}
                 </View>
               </View>
             </CustomEnterView>
@@ -237,14 +232,16 @@ const WeatherInfoItem: React.FunctionComponent<WheatherInfoItemProps> = ({
 
 type ForecastProps = {
   date: string;
-  temp: number;
+  temp: string;
   delay: number;
+  icon: string;
 };
 
 const ForecastItem: React.FunctionComponent<ForecastProps> = ({
   date,
   temp,
   delay,
+  icon,
 }) => {
   return (
     <CustomEnterView delay={delay}>
@@ -255,12 +252,19 @@ const ForecastItem: React.FunctionComponent<ForecastProps> = ({
           borderWidth: 2,
           borderRadius: 12,
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "center",
           paddingVertical: 12,
         }}
       >
-        <Typography fontWeight="bold">{temp}°</Typography>
-        <Typography fontWeight="bold" fontSize={12}>
+        <Typography fontWeight="bold" style={{ position: "absolute", top: 12 }}>
+          {temp}°
+        </Typography>
+        <Image source={{ uri: icon }} style={{ width: 30, height: 30 }} />
+        <Typography
+          fontWeight="bold"
+          fontSize={12}
+          style={{ position: "absolute", bottom: 12 }}
+        >
           {date}
         </Typography>
       </View>

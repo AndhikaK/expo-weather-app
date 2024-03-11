@@ -4,6 +4,7 @@ import { useQueries } from "@tanstack/react-query";
 
 import { Weather } from "@/api/type";
 import { getWeatherForecast } from "@/api/weather";
+import { formatDate } from "@/utils/date";
 
 const defaultCity = [
   {
@@ -43,6 +44,12 @@ export const useWeatherForecast = () => {
       queries
         .filter((item) => item.data)
         .map((item, index) => {
+          const forecasts = item.data?.forecast.forecastday?.map((cast) => ({
+            temp: cast.day.avgtemp_c,
+            icon: "https:" + cast.day.condition.icon,
+            date: formatDate(cast.date),
+          }));
+
           return {
             color: colors[index],
             city: item.data?.location.name,
@@ -52,6 +59,7 @@ export const useWeatherForecast = () => {
             humidity: item.data?.current.humidity,
             visibility: item.data?.current.vis_km,
             summary: generateWeatherSummary(item.data?.current),
+            forecasts,
           };
         }),
     [queries]
