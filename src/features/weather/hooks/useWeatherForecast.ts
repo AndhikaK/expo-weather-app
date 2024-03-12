@@ -62,7 +62,10 @@ export const useWeatherForecast = () => {
             return {
               color: colors[index],
               city: item.data?.location.name ?? "",
-              temperature: item.data?.current.temp_c.toString() ?? "",
+              temperature:
+                item.data?.current?.temp_c && item.data?.current?.temp_c > 10
+                  ? Math.ceil(item.data?.current.temp_c ?? 0).toString()
+                  : item.data?.current.temp_c.toString() ?? "",
               weather: item.data?.current.condition.text ?? "",
               wind: item.data?.current.wind_kph.toString() ?? "",
               humidity: item.data?.current.humidity.toString() ?? "",
